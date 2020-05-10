@@ -20,7 +20,7 @@ export class WSServer {
         const context = await ws.handler('connection', null, ws);
         context.ws = ws;
         try {
-          for await (const ev of sock) {
+          for await (let ev of sock) {
             if (isWebSocketPingEvent(ev)) {
               const [, body] = ev;
               // ping
@@ -56,18 +56,16 @@ export class WSServer {
 
   async listen({ port }) {
     const server = serve(`:${port}`);
-    for await (const request of server) {
+    for await (let request of server) {
       console.log("new request ", request.url);
       const { conn, r: bufReader, w: bufWriter, headers } = request;
-      acceptWebSocket({
+      const sock = await acceptWebSocket({
         conn,
         bufReader,
         bufWriter,
         headers,
-      }).then(async sock => {
-        await this.handleSocket(sock, request);
       });
-
+      await this.handleSocket(sock, request);
     }
   }
 

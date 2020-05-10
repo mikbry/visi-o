@@ -1,14 +1,16 @@
+import { v4 } from "https://deno.land/std/uuid/mod.ts";
+
 export default class SignalingServer {
   constructor() {
     this.clients = [];
   }
 
   createClient() {
-    const id = (Math.random() * 10000);
+    const id = v4.generate();
     const context = { id };
     this.clients.push(context);
     console.log('Client connected', id);
-   return context;
+    return context;
   }
 
   closeClient(id) {
@@ -31,9 +33,9 @@ export default class SignalingServer {
     if (type === 'message') {
       console.log('got message ', context.id);
       return this.handleMessage(context.id, data);
-    } else  if (type === 'connection') {
+    } else if (type === 'connection') {
       return this.createClient();
-    } else  if (type === 'close') {
+    } else if (type === 'close') {
       return this.closeClient(context.id);
     }
   }
