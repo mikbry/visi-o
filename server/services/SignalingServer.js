@@ -5,9 +5,9 @@ export default class SignalingServer {
     this.clients = [];
   }
 
-  createClient() {
+  createClient(ws) {
     const id = v4.generate();
-    const context = { id };
+    const context = { id, ws };
     this.clients.push(context);
     console.log('Client connected', id);
     return context;
@@ -23,7 +23,7 @@ export default class SignalingServer {
     for await (const client of this.clients) {
       if (client.id !== id) {
         console.log('send message ', client.id);
-        await client.ws.send(message);
+        client.ws.send(message);
       }
     }
   }
@@ -34,7 +34,7 @@ export default class SignalingServer {
       console.log('got message ', context.id);
       return this.handleMessage(context.id, data);
     } else if (type === 'connection') {
-      return this.createClient();
+      return this.createClient(data);
     } else if (type === 'close') {
       return this.closeClient(context.id);
     }

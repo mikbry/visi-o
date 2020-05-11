@@ -1,5 +1,6 @@
-import { serve } from "https://deno.land/std/http/server.ts";
+import { serveTLS } from "https://deno.land/std/http/server.ts";
 import {
+  acceptable,
   acceptWebSocket,
   isWebSocketCloseEvent,
   isWebSocketPingEvent,
@@ -7,29 +8,23 @@ import {
 
 export class WSServer {
   constructor() {
-    this.wss = [];
+    this.routes = [];
   }
 
-  async handleSocket(sock, request, ws) {
+  async handleSocket(ws) {
     try {
-      console.log("socket connected! ", request.url);
-      ws.send = async message => sock.send(message);
-      const context = await ws.handler('connection', null, ws);
-      context.ws = ws;
+      console.log("socket connected! ", ws.request.url);
+      ws.send = message => ws.sock.send(message);
+      const context = await ws.route.handler('connection', null, ws);
       try {
-        for await (const ev of sock) {
-          if (isWebSocketPingEvent(ev)) {
-            const [, body] = ev;
-            // ping
-            console.log("ws:Ping", body);
-            await ws.handler('ping', context, ev);
-          } else if (isWebSocketCloseEvent(ev)) {
+        for await (const ev of ws.sock) {
+          if (isWebSocketCloseEvent(ev)) {
             // close
             const { code, reason } = ev;
             console.log("ws:Close", code, reason);
-            await ws.handler('close', context, ev);
+            await ws.route.handler('close', context, ev);
           } else {
-            await ws.handler('message', context, ev);
+            await ws.route.handler('message', context, ev);
           }
         }
         console.log('closed sock');
@@ -42,33 +37,42 @@ export class WSServer {
       }
     } catch (err) {
       console.error(`failed to accept websocket: ${err}`);
-      await request.respond({ status: 400 });
+      await ws.request.respond({ status: 400 });
     }
   }
 
   async listen({ port }) {
-    const server = serve(`:${port}`);
+    const options = {
+      port: port,
+      certFile: `${Deno.cwd()}/certs/localhost+2.pem`,
+      keyFile: `${Deno.cwd()}/certs/localhost+2-key.pem`,
+    };
+    const server = serveTLS(options);
     for await (const request of server) {
-      let ws = this.wss.find(w => w.url === request.url || w.url === '*');
-      console.log('request.path', request.path, request.url, ws);
-      if (ws) {
-        (async () => {
-          console.log("new request ", request.url);
-          const { conn, r: bufReader, w: bufWriter, headers } = request;
-          const sock = await acceptWebSocket({
-            conn,
-            bufReader,
-            bufWriter,
-            headers,
-          });
-          await this.handleSocket(sock, request, ws);  
-        })();
+      if (acceptable(request)) {
+        const route = this.routes.find(route => route.url === request.url || route.url === '*');
+        console.log('request.path', request.url,);
+        if (route) {
+          try {
+            console.log("new request ", request.url);
+            const { conn, r: bufReader, w: bufWriter, headers } = request;
+            acceptWebSocket({
+              conn,
+              bufReader,
+              bufWriter,
+              headers,
+            }).then(sock => this.handleSocket({ sock, request, route }));
+          } catch (err) {
+            console.error(`failed to accept websocket: ${err}`);
+            await request.respond({ status: 400 });
+          }
+        }
       }
     }
   }
 
   ws(url = '*', handler) {
-    this.wss.push({ url, handler });
+    this.routes.push({ url, handler });
   }
 }
 

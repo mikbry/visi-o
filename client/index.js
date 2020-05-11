@@ -17,7 +17,7 @@
       const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true }, video: {width: {exact: 1280}, height: {exact: 720}} });
       showChatRoom();
 
-      const signaling = new WebSocket('ws://localhost:4000/ws');
+      const signaling = new WebSocket(`wss://192.168.1.21:4000/ws`);
       signaling.onopen = () => {
         const peerConnection = createPeerConnection(signaling);
 
@@ -67,14 +67,14 @@
   const addMessageHandler = (signaling, peerConnection) => {
     signaling.onmessage = async (message) => {
       const data = JSON.parse(message.data);
-
+      console.log('got message', message, data);
       if (!data) {
         return;
       }
-      if (RTCRtpSender.getCapabilities) {
+      /* if (RTCRtpSender.getCapabilities) {
         const capabilityCodecs = RTCRtpSender.getCapabilities('video').codecs;
         console.log('capabilities=', capabilityCodecs);  
-      }
+      } */
       const { message_type, content } = data;
       try {
         if (message_type === MESSAGE_TYPE.CANDIDATE && content) {
@@ -102,7 +102,7 @@
 
   const createAndSendOffer = async (signaling, peerConnection) => {
     const offer = await peerConnection.createOffer();
-    console.log('sdp=', offer.sdp);
+    // console.log('sdp=', offer.sdp);
     await peerConnection.setLocalDescription(offer);
 
     signaling.send(JSON.stringify({ message_type: MESSAGE_TYPE.SDP, content: offer }));
