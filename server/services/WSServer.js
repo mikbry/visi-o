@@ -3,28 +3,27 @@ import {
   acceptable,
   acceptWebSocket,
   isWebSocketCloseEvent,
-  isWebSocketPingEvent,
 } from "https://deno.land/std/ws/mod.ts";
 
-export class WSServer {
-  constructor() {
-    this.routes = [];
+export default class WSServer {
+  constructor(httpServer) {
+    this.httpServer = httpServer;
   }
 
   async handleSocket(ws) {
     try {
       console.log("socket connected! ", ws.request.url);
       ws.send = message => ws.sock.send(message);
-      const context = await ws.route.handler('connection', null, ws);
+      const context = await ws.handler('connection', null, ws);
       try {
         for await (const ev of ws.sock) {
           if (isWebSocketCloseEvent(ev)) {
             // close
             const { code, reason } = ev;
             console.log("ws:Close", code, reason);
-            await ws.route.handler('close', context, ev);
+            await ws.handler('close', context, ev);
           } else {
-            await ws.route.handler('message', context, ev);
+            await ws.handler('message', context, ev);
           }
         }
         console.log('closed sock');
@@ -72,7 +71,25 @@ export class WSServer {
   }
 
   ws(url = '*', handler) {
-    this.routes.push({ url, handler });
+    const wsHandler = async (request) => {
+      if (acceptable(request)) {
+        console.log('request.path', request.url,);
+        try {
+          console.log("new request ", request.url);
+          const { conn, r: bufReader, w: bufWriter, headers } = request;
+          acceptWebSocket({
+            conn,
+            bufReader,
+            bufWriter,
+            headers,
+          }).then(sock => this.handleSocket({ sock, request, handler }));
+        } catch (err) {
+          console.error(`failed to accept websocket: ${err}`);
+          await request.respond({ status: 400 });
+        }
+      }
+    };
+    this.httpServer.get(url, wsHandler);
   }
 }
 

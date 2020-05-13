@@ -1,33 +1,24 @@
-import { serve } from "https://deno.land/std/http/server.ts";
-import { Application, send } from "https://deno.land/x/oak/mod.ts";
-import { WSServer } from "./services/WSServer.js";
+import HttpServer from "./services/HttpServer.js";
+import WSServer from "./services/WSServer.js";
 import SignalingServer from './services/SignalingServer.js';
 
 const APP_PORT = 4000;
+const options = {
+  port: APP_PORT,
+  certFile: `${Deno.cwd()}/certs/localhost+2.pem`,
+  keyFile: `${Deno.cwd()}/certs/localhost+2-key.pem`,
+};
 
-const app = new Application();
-
-app.use(async (context) => {
-  console.log(Deno.cwd());
-  console.log(context.request.path);
-  await send(context, '', {
-    root: `${Deno.cwd()}/public`,
-    index: "index.html",
-  });
-});
-
-const wss = new WSServer();
+const http = new HttpServer();
+const wss = new WSServer(http);
 const signaling = new SignalingServer();
 wss.ws('/ws', async (type, context, data) => {
   return signaling.handleWS(type, context, data);
 });
 
 window.onload = async () => {
-  await wss.listen({ port: APP_PORT });
+  // await wss.listen({ port: APP_PORT });
+  await http.listen(options);
 };
 
-/* (async () => {
-  await app.listen({ port: APP_PORT });
-})(); */
-
-console.log(`DinoCam listening on port ${APP_PORT}`);
+console.log(`Din-O listening on port ${options.port}`);
