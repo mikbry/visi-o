@@ -3,6 +3,27 @@ import { v4 } from "https://deno.land/std/uuid/mod.ts";
 export default class SignalingServer {
   constructor() {
     this.clients = [];
+    this.rooms = [];
+  }
+
+  getRoom(name) {
+    return this.rooms.find(r => r.name === name);
+  }
+
+  createRoom(name, password) {
+    let room;
+    if (!this.getRoom(name)) {
+      const id = v4.generate();
+      room = { id, name, password, users: [] };
+    }
+    return room;
+  }
+
+  joinRoom(name, user, password) {
+    let room = this.getRoom(name);
+    if (room.password === password && !room.users.find(u => u.id === user.id)) {
+      room.users.push(user.id);
+    }
   }
 
   createClient(ws) {
