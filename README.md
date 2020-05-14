@@ -1,12 +1,12 @@
 # Din-O
-`WIP` Experimental video conference app using Deno
-This app explore new ways of building webapp using state of the art technologies.
-
-- WebRtc : This open-source project is now deeply used by video conferencing app. But could we push it a bit further ? (AV1 codec, QUiC, encryption, AI, ...) 
-https://webrtc.org/
+`WIP` Experimental video conference app
+This app explores new ways of building webapp using state of the art technologies.
 
 - Deno : a new runtime for executing Javascript / Typescript / WASM outside of the web browser. It is made  by Ryan Dahl author of Node.js
 https://deno.land/v1
+
+- WebRtc : This open-source project is now deeply used by video conferencing app. But could we push it a bit further ? (AV1 codec, QUiC, encryption, AI, ...) 
+https://webrtc.org/
 
 - ES Modules : bundlerless frontend development. How to stay/improve coding productivity and reduce javascript fatigue.
 
