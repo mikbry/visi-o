@@ -1,46 +1,111 @@
 html, body {
-  min-height: 100% !important;
   height: 100%;
   margin: 0;
 }
 
 body {
-background-color:#01284a;
-padding: 8px;
+  margin: 0;
+  font-family: serif;
+  background: #bca9a9;
+}
+
+.header-container {
+  position: relative;
+  background: #fff;
+  color: #000;
+  text-align: center;
+  overflow: hidden;
+}
+
+.header-container>div {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  min-height: 480px;
+}
+
+.header-container>svg {
+  background: #fff;
+}
+
+h1 {
+  font-size: 5rem;
+  margin: 7rem 1.25rem 2.5rem 1.25rem;
+}
+
+p {
+  font-size: 1.5rem;
+  margin: 0 1.25rem 5rem 1.25rem;
 }
 
 button {
-display: block;
-margin: auto;
-position: relative;
-top: 40%;
-padding: 10px;
-font-size: 16px;
-background-color: #000f1c;
-border-radius: 3px;
-color: white;
-font-weight: bold;
-cursor: pointer;
+  font-size: 16px;
+  padding: 10px 20px;
+  background-color: #f06a6a;
+  border-radius: 3px;
+  border: none;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.rooms-box {
+  position: relative;
+  min-width: 360px;
+  margin: 50px 20px;
+  text-align: left;
+  background: antiquewhite;
+  padding: 10px;
+}
+
+.rooms-box>button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
+.rooms-box>button:hover {
+  opacity: 0.6;
+}
+
+.rooms-box>ul {
+  transform: rotate(-90deg);
+  transform-origin: 49% 160%;
+}
+
+.rooms-box>ul>li {
+  padding: 10px;
+  margin-left: 30px;
+  height: 32px;
+  border: 1px solid slategray;
+  cursor: pointer;
+  text-transform: uppercase;
+  background: whitesmoke;
+}
+
+.rooms-box>ul>li:hover {
+  opacity: 0.6;
 }
 
 video {
-width: 100%;
+  width: 100%;
 }
 
 #videos {
-display: grid;
-grid-gap: 16px;
-width: 100%;
-grid-template-columns: 1fr 3fr;
+  display: grid;
+  grid-gap: 16px;
+  width: 100%;
+  grid-template-columns: 1fr 3fr;
 }
 
 #self-view {
-grid-column: 1;
-background-color: black;
+  grid-column: 1;
+  background-color: black;
 }
 
 #remote-view {
-grid-column: 2;
-background-color: black;
-height: 95vh;
+  grid-column: 2;
+  background-color: black;
+  height: 95vh;
 }
