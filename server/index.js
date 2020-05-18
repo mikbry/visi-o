@@ -11,9 +11,22 @@ const options = {
 
 const http = new HttpServer();
 const wss = new WSServer(http);
+
 const signaling = new SignalingServer();
 wss.ws('/ws', async (type, context, data) => {
   return signaling.handleWS(type, context, data);
+});
+http.get('/api/room', async (request) => {
+  const rooms = signaling.getRooms();
+  const body = JSON.stringify({ rooms });
+  return request.respond({
+    status: 200,
+    headers: new Headers({
+      "content-type": "application/json",
+      "access-control-allow-origin": "*",
+    }),
+    body,
+  });
 });
 
 window.onload = async () => {

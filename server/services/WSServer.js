@@ -40,36 +40,6 @@ export default class WSServer {
     }
   }
 
-  async listen({ port }) {
-    const options = {
-      port: port,
-      certFile: `${Deno.cwd()}/certs/localhost+2.pem`,
-      keyFile: `${Deno.cwd()}/certs/localhost+2-key.pem`,
-    };
-    const server = serveTLS(options);
-    for await (const request of server) {
-      if (acceptable(request)) {
-        const route = this.routes.find(route => route.url === request.url || route.url === '*');
-        console.log('request.path', request.url,);
-        if (route) {
-          try {
-            console.log("new request ", request.url);
-            const { conn, r: bufReader, w: bufWriter, headers } = request;
-            acceptWebSocket({
-              conn,
-              bufReader,
-              bufWriter,
-              headers,
-            }).then(sock => this.handleSocket({ sock, request, route }));
-          } catch (err) {
-            console.error(`failed to accept websocket: ${err}`);
-            await request.respond({ status: 400 });
-          }
-        }
-      }
-    }
-  }
-
   ws(url = '*', handler) {
     const wsHandler = async (request) => {
       if (acceptable(request)) {

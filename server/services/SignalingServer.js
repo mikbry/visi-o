@@ -3,7 +3,11 @@ import { v4 } from "https://deno.land/std/uuid/mod.ts";
 export default class SignalingServer {
   constructor() {
     this.clients = [];
-    this.rooms = [];
+    this.rooms = [{ id: "1", name: "test", users: [] }, { id: "2", name: "wonderfull", users: [] }];
+  }
+
+  getRooms() {
+    return this.rooms.map(r => ({ id: r.id, name: r.name }));
   }
 
   getRoom(name) {
