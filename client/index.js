@@ -1,3 +1,4 @@
+// No official React ESM support https://github.com/facebook/react/issues/11503
 import { React, ReactDOM, useState, useRef, useEffect } from 'https://unpkg.com/es-react';
 // https://github.com/developit/htm
 import htm from 'https://unpkg.com/htm?module';
