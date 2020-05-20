@@ -88,6 +88,16 @@ button {
   opacity: 0.6;
 }
 
+.self-video {
+  position: relative;
+}
+
+.self-video>button {
+  position: absolute;
+  bottom: 4px;
+  right: 24px;
+}
+
 video {
   width: 100%;
 }

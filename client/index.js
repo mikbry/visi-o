@@ -4,6 +4,7 @@ import { React, ReactDOM, useState, useRef, useEffect } from 'https://unpkg.com/
 import htm from 'https://unpkg.com/htm?module';
 import config from './config.js';
 import webRtc from './webRtc.js';
+import Video from './video.js';
 
 const html = htm.bind(React.createElement);
 
@@ -57,6 +58,7 @@ ReactDOM.render(
         <div>
           <h1>Din-O</h1>
           <p>Experimental Video-conversation app</p>
+          <${Video} autoplay=true />
         </div>
         <${Lobby} />
       </div>
